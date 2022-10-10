@@ -105,6 +105,23 @@ DefinitionBlock ("Dsdt.aml", "DSDT", 1, "INTEL ", "SIMICS  ", 4) {
           ,                      // ResourceSource
           PW32                   // DescriptorName
           )
+
+        QWORDMEMORY (            // Descriptor for 32-bit MMIO
+          ResourceProducer,      // bit 0 of general flags is 0
+          PosDecode,
+          MinFixed,              // Range is fixed
+          MaxFixed,              // Range is Fixed
+          NonCacheable,
+          ReadWrite,
+          0x00000000,            // Granularity
+          0x800000000,            // Min
+          0xAFFFFFFFF,            // Max
+          0x00000000,            // Translation
+          0x300000000,            // Range Length
+          ,                      // ResourceSourceIndex
+          ,                      // ResourceSource
+          PW64                   // DescriptorName
+          )
       })
 
       //
