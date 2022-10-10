@@ -1567,6 +1567,73 @@ BdsBeforeConsoleBeforeEndOfDxeGuidCallback (
   DEBUG ((DEBUG_INFO, "%a called\n", __FUNCTION__));
 }
 
+#define INTERNAL_UEFI_SHELL_NAME L"EFI Internal Shell"
+
+/**
+  Returns the priority number.
+  OptionType                 EFI
+  ------------------------------------
+  PXE                         2
+  DVD                         4
+  USB                         6
+  NVME                        7
+  HDD                         8
+  EFI Shell                   9
+  Others                      100
+
+  @param BootOption
+**/
+UINTN
+BootOptionPriority (
+  CONST EFI_BOOT_MANAGER_LOAD_OPTION *BootOption
+  )
+{
+    UINTN ReturnValue = 100;
+    //
+    // EFI boot options
+    //
+    if (StrStr (BootOption->Description, L"USB") != NULL)
+      ReturnValue = 4; 
+    else
+    if (StrStr (BootOption->Description, L"CD-ROM") != NULL)
+      ReturnValue = 5; 
+    else
+    if (StrStr (BootOption->Description, L"Harddrive") != NULL)
+      ReturnValue = 6;
+    else
+    if (StrStr (BootOption->Description, L"PXE") != NULL)
+      ReturnValue = 7; 
+    else
+    if (StrStr (BootOption->Description, L"HTTP") != NULL)
+      ReturnValue = 8; 
+    else
+    if (StrCmp (BootOption->Description, INTERNAL_UEFI_SHELL_NAME) == 0)
+      ReturnValue = 9;
+
+    DEBUG ((DEBUG_INFO, "For %s prio is %d\n", BootOption->Description, ReturnValue));
+    return ReturnValue;
+}
+
+/**
+   Compares boot priorities of two boot options
+
+  @param Left       The left boot option
+  @param Right      The right boot option
+
+  @return           The difference between the Left and Right
+                    boot options
+ **/
+INTN
+EFIAPI
+CompareBootOption (
+  CONST VOID  *Left,
+  CONST VOID  *Right
+  )
+{
+  return BootOptionPriority ((EFI_BOOT_MANAGER_LOAD_OPTION *) Left) -
+         BootOptionPriority ((EFI_BOOT_MANAGER_LOAD_OPTION *) Right);
+}
+
 /**
   After console ready before boot option event callback
 
@@ -1616,14 +1683,29 @@ BdsAfterConsoleReadyBeforeBootOptionCallback (
   // Logo show
   //
   EnableBootLogo(PcdGetPtr(PcdLogoFile));
+  
+  //force processing of pending events
+  /*
+    To do that, we first raise to TPL_NOTIFY to get out
+    original TPL, the we "restore" to TPL_APPLICATION 
+    to get the TPL_CALLBACK events triggered (USB init),
+    and finally we got back to our real TPL (which is higher
+    than TPL_APPLICATION)
+  */
+  
+  EFI_TPL origTLP = gBS->RaiseTPL(TPL_NOTIFY);
+  gBS->RestoreTPL(TPL_APPLICATION);
+  gBS->RaiseTPL(origTLP);
 
   EfiBootManagerRefreshAllBootOption ();
+  DEBUG ((DEBUG_INFO, "Sorting options!\n"));
+  EfiBootManagerSortLoadOptionVariable (LoadOptionTypeBoot, CompareBootOption);
 
   //
   // Register UEFI Shell
   //
   PlatformRegisterFvBootOption (
-    PcdGetPtr (PcdShellFile), L"EFI Internal Shell", LOAD_OPTION_ACTIVE
+    PcdGetPtr (PcdShellFile), INTERNAL_UEFI_SHELL_NAME, LOAD_OPTION_ACTIVE
     );
 
   RemoveStaleFvFileOptions ();
