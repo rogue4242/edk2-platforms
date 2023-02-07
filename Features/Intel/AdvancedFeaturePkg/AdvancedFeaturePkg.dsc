@@ -25,7 +25,7 @@
   DSC_SPECIFICATION                   = 0x00010005
   OUTPUT_DIRECTORY                    = Build/AdvancedFeaturePkg
   SUPPORTED_ARCHITECTURES             = IA32|X64
-  BUILD_TARGETS                       = DEBUG|RELEASE
+  BUILD_TARGETS                       = DEBUG|RELEASE|NOOPT
   SKUID_IDENTIFIER                    = DEFAULT
   PEI_ARCH                            = IA32
   DXE_ARCH                            = X64
@@ -95,6 +95,10 @@
 [PcdsFixedAtBuild]
   gUsb3DebugFeaturePkgTokenSpaceGuid.PcdUsb3DebugPortLibInstance|1
 
+[PcdsDynamicExDefault.X64]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutRow
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutRow
+
 #
 # MinPlatform common include for required feature PCD
 # These PCD must be set before the core include files, CoreCommonLib,
@@ -114,6 +118,9 @@
 #
 [LibraryClasses.Common]
   PlatformHookLib|MdeModulePkg/Library/BasePlatformHookLibNull/BasePlatformHookLibNull.inf # Required by BeepDebugFeature
+
+[LibraryClasses.Common.PEIM]
+  SmmAccessLib|IntelSiliconPkg/Feature/SmmAccess/Library/PeiSmmAccessLib/PeiSmmAccessLib.inf # Required by S3Feature
 
 #
 # This package builds all advanced features.

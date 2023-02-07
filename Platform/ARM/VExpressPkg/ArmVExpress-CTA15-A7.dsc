@@ -64,11 +64,8 @@
 
 [BuildOptions]
 !ifdef ARM_BIGLITTLE_TC2
-  *_*_ARM_ARCHCC_FLAGS  = -DARM_BIGLITTLE_TC2=1
   *_*_ARM_PP_FLAGS  = -DARM_BIGLITTLE_TC2=1
 !endif
-
-  RVCT:*_*_ARM_PLATFORM_FLAGS == --cpu Cortex-A15 -I$(WORKSPACE)/Platform/ARM/VExpressPkg/Include/Platform/CTA15-A7
 
   GCC:*_*_ARM_PLATFORM_FLAGS == -mcpu=cortex-a15 -I$(WORKSPACE)/Platform/ARM/VExpressPkg/Include/Platform/CTA15-A7
 
@@ -167,7 +164,7 @@
   #
   # Define the device path to the FDT for the platform
   #
-  gFdtPlatformDxeTokenSpaceGuid.PcdFdtDevicePaths|L"VenHw(93E34C7E-B50E-11DF-9223-2443DFD72085,00)/ca15a7"
+  gFdtPlatformDxeTokenSpaceGuid.PcdFdtDevicePaths|L"VenHw(DE6AE758-D662-4E17-A97C-4C5964DA4C41,00)/ca15a7"
 
   #
   # ARM Architectural Timer Frequency
@@ -229,7 +226,7 @@
   MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe.inf
 
   ArmPkg/Drivers/ArmGic/ArmGicDxe.inf
-  ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashDxe.inf
+  Platform/ARM/Drivers/NorFlashDxe/NorFlashDxe.inf
   ArmPlatformPkg/Drivers/LcdGraphicsOutputDxe/LcdGraphicsOutputDxe.inf
   ArmPkg/Drivers/TimerDxe/TimerDxe.inf
   ArmPlatformPkg/Drivers/SP805WatchdogDxe/SP805WatchdogDxe.inf
