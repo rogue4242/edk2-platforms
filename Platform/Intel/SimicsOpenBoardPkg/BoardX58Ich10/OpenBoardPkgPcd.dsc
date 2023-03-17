@@ -182,6 +182,7 @@
   gMinPlatformPkgTokenSpaceGuid.PcdMaxCpuSocketCount|4
   gMinPlatformPkgTokenSpaceGuid.PcdMaxCpuThreadCount|4
   gMinPlatformPkgTokenSpaceGuid.PcdPcIoApicAddressBase|0xFEC01000
+  gMinPlatformPkgTokenSpaceGuid.PcdSerialTerminalEnable|TRUE
 
   ######################################
   # Board Configuration
@@ -268,7 +269,7 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdConOutRow|31
   gEfiMdeModulePkgTokenSpaceGuid.PcdSetupVideoHorizontalResolution|800
   gEfiMdeModulePkgTokenSpaceGuid.PcdSetupVideoVerticalResolution|600
-  gEfiMdePkgTokenSpaceGuid.PcdDefaultTerminalType|0
+  gEfiMdePkgTokenSpaceGuid.PcdDefaultTerminalType|4
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultBaudRate|115200
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultDataBits|8
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultParity|1
@@ -279,5 +280,5 @@
   ######################################
   # Edk2 Configuration
   ######################################
-  gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut|L"Timeout"|gEfiGlobalVariableGuid|0x0|50 # Variable: L"Timeout"
+  gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut|L"Timeout"|gEfiGlobalVariableGuid|0x0|3 # Variable: L"Timeout"
   gEfiMdePkgTokenSpaceGuid.PcdHardwareErrorRecordLevel|L"HwErrRecSupport"|gEfiGlobalVariableGuid|0x0|1 # Variable: L"HwErrRecSupport"

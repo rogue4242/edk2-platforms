@@ -702,6 +702,8 @@ FindAndReportEntryPoints (
   return;
 }
 
+VOID InitializeFloatingPointUnits ();
+
 VOID
 EFIAPI
 SecCoreStartupWithStack (

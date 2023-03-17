@@ -48,6 +48,7 @@
   DxeLoadLinuxLib
   UefiLib
   LogoLib
+  SerialPortLib
 
 [Pcd]
   gSimicsOpenBoardPkgTokenSpaceGuid.PcdSimicsX58HostBridgePciDevId

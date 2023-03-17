@@ -51,4 +51,4 @@ SET gIntelSiliconPkgTokenSpaceGuid.PcdBiosSize = $(FW_SIZE)
 SET gMinPlatformPkgTokenSpaceGuid.PcdFlashAreaBaseAddress = gIntelSiliconPkgTokenSpaceGuid.PcdBiosAreaBaseAddress
 SET gMinPlatformPkgTokenSpaceGuid.PcdFlashAreaSize = gIntelSiliconPkgTokenSpaceGuid.PcdBiosSize
 
-DEFINE MEMFD_BASE_ADDRESS = 0x800000
+DEFINE MEMFD_BASE_ADDRESS = 0x60800000
