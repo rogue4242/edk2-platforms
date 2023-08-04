@@ -67,8 +67,13 @@
   gEfiDevicePathProtocolGuid                    # PROTOCOL BY_START
   gEfiPciIoProtocolGuid                         # PROTOCOL TO_START
   gEfiDxeSmmReadyToLockProtocolGuid
+  gEfiPciRootBridgeIoProtocolGuid
 
 [Pcd]
   gOptionRomPkgTokenSpaceGuid.PcdDriverSupportedEfiVersion
   gSimicsOpenBoardPkgTokenSpaceGuid.PcdSimicsX58HostBridgePciDevId
   gEfiMdeModulePkgTokenSpaceGuid.PcdNullPointerDetectionPropertyMask
+  gSimicsOpenBoardPkgTokenSpaceGuid.PcdUefiDeviceFunction         ## CONSUMES
+  gSimicsOpenBoardPkgTokenSpaceGuid.PcdUefiDeviceDevice           ## CONSUMES
+  gSimicsOpenBoardPkgTokenSpaceGuid.PcdUefiDeviceBus              ## CONSUMES
+  gSimicsOpenBoardPkgTokenSpaceGuid.PcdUefiDeviceModeRefOffs      ## CONSUMES

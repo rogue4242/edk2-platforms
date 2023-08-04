@@ -7,7 +7,7 @@
 **/
 
 #include "Simics.h"
-
+#include <Protocol/PciRootBridgeIo.h>
 
 ///
 /// Generic Attribute Controller Register Settings
@@ -310,6 +310,14 @@ QemuVideoBochsModeSetup (
   }
   ModeData = Private->ModeData;
   VideoMode = &QemuVideoBochsModes[0];
+  
+  EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *PciIo;
+  EFI_STATUS Status = gBS->LocateProtocol (&gEfiPciRootBridgeIoProtocolGuid, NULL, (VOID **) &PciIo);
+  if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_ERROR, "Could not get PCIIo handle. Not reporting video modes to UEFI device.\n"));
+      PciIo = 0;
+  }
+
   for (Index = 0; Index < QEMU_VIDEO_BOCHS_MODE_COUNT; Index ++) {
     UINTN RequiredFbSize;
 
@@ -321,6 +329,22 @@ QemuVideoBochsModeSetup (
       ModeData->HorizontalResolution = VideoMode->Width;
       ModeData->VerticalResolution   = VideoMode->Height;
       ModeData->ColorDepth           = VideoMode->ColorDepth;
+      if (PciIo) {
+          const UINT8  UEFI_DEVICE_F = PcdGet8 (PcdUefiDeviceFunction);
+          const UINT8  UEFI_DEVICE_D = PcdGet8 (PcdUefiDeviceDevice);
+          const UINT8  UEFI_DEVICE_B = PcdGet8 (PcdUefiDeviceBus);
+          const UINT64 UEFI_DEVICE_CONF_ADDR = (UEFI_DEVICE_B<<24) + (UEFI_DEVICE_D<<16) + (UEFI_DEVICE_F<<8);
+          const UINT8  UEFI_DEVICE_MODE_REG_OFFS = PcdGet8 (PcdUefiDeviceModeRefOffs);
+
+          UINT16 Index_16  = Index;
+          UINT16 Width_16  = VideoMode->Width;
+          UINT16 Height_16 = VideoMode->Height;
+          UINT16 Depth_16  = VideoMode->ColorDepth;
+          PciIo->Pci.Write(PciIo, EfiPciIoWidthUint16, UEFI_DEVICE_CONF_ADDR + UEFI_DEVICE_MODE_REG_OFFS, 1, &Index_16);
+          PciIo->Pci.Write(PciIo, EfiPciIoWidthUint16, UEFI_DEVICE_CONF_ADDR + UEFI_DEVICE_MODE_REG_OFFS, 1, &Width_16);
+          PciIo->Pci.Write(PciIo, EfiPciIoWidthUint16, UEFI_DEVICE_CONF_ADDR + UEFI_DEVICE_MODE_REG_OFFS, 1, &Height_16);
+          PciIo->Pci.Write(PciIo, EfiPciIoWidthUint16, UEFI_DEVICE_CONF_ADDR + UEFI_DEVICE_MODE_REG_OFFS, 1, &Depth_16);
+      }
       DEBUG ((EFI_D_INFO,
         "Adding Mode %d as Bochs Internal Mode %d: %dx%d, %d-bit\n",
         (INT32) (ModeData - Private->ModeData),
