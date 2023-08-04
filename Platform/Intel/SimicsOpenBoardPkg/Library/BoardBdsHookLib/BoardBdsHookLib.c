@@ -101,6 +101,32 @@ ConnectRootBridge (
   IN VOID        *Context
   );
 
+VOID
+SetGraphicsMode(
+  VOID
+  )
+{
+  EFI_GRAPHICS_OUTPUT_PROTOCOL    *Gop;
+  EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *PciIo;
+  UINT16 gfx_mode = 5;
+  EFI_STATUS Status = gBS->LocateProtocol (&gEfiPciRootBridgeIoProtocolGuid, NULL, (VOID **) &PciIo);
+  
+  if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_ERROR, "Could not get PCIIo handle. Falling back to GFX Mode 0.\n"));
+  } else {
+      DEBUG ((DEBUG_INFO, "Getting GFX Mode \n"));
+      Status = PciIo->Pci.Read(PciIo, EfiPciIoWidthUint16, 0x742, 1, &gfx_mode);
+      if (EFI_ERROR (Status)) DEBUG ((DEBUG_ERROR, "Could not perform PCI conf read2. Falling back to GFX Mode 0.\n"));
+      DEBUG ((DEBUG_INFO, "Got GFX Mode %d\n", gfx_mode));
+  }
+  Status = gBS->LocateProtocol (&gEfiGraphicsOutputProtocolGuid, NULL, (VOID **) &Gop);
+  if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_ERROR, "Could not get GOP handle\n"));
+  } else {
+      DEBUG ((DEBUG_INFO, "Setting GXF Mode %d\n", gfx_mode));
+      Gop->SetMode(Gop, gfx_mode);
+  }
+}
 
 VOID
 PlatformRegisterFvBootOption (
@@ -1285,6 +1311,8 @@ BdsReadyToBootCallback (
   )
 {
    DEBUG ((DEBUG_INFO, "%a called\n", __FUNCTION__));
+   //we set it here again as the UEFI boot menu might reset it
+   SetGraphicsMode ();
 }
 
 
@@ -1551,7 +1579,7 @@ BdsAfterConsoleReadyBeforeBootOptionCallback (
   // Perform some platform specific connect sequence
   //
   PlatformBdsConnectSequence ();
-
+  
   //
   // Logo show
   //
