@@ -58,6 +58,10 @@
   gMinPlatformPkgTokenSpaceGuid.PcdTrustedConsoleInputDevicePath  ## CONSUMES
   gMinPlatformPkgTokenSpaceGuid.PcdTrustedConsoleOutputDevicePath ## CONSUMES
   gMinPlatformPkgTokenSpaceGuid.PcdTrustedStorageDevicePath       ## CONSUMES
+  gSimicsOpenBoardPkgTokenSpaceGuid.PcdUefiDeviceFunction         ## CONSUMES
+  gSimicsOpenBoardPkgTokenSpaceGuid.PcdUefiDeviceDevice           ## CONSUMES
+  gSimicsOpenBoardPkgTokenSpaceGuid.PcdUefiDeviceBus              ## CONSUMES
+  gSimicsOpenBoardPkgTokenSpaceGuid.PcdUefiDeviceModeRefOffs      ## CONSUMES
 
 [Pcd.IA32, Pcd.X64]
   gEfiMdePkgTokenSpaceGuid.PcdFSBClock

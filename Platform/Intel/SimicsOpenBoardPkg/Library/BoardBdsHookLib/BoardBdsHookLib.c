@@ -109,21 +109,35 @@ SetGraphicsMode(
   EFI_GRAPHICS_OUTPUT_PROTOCOL    *Gop;
   EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *PciIo;
   UINT16 gfx_mode = 5;
-  EFI_STATUS Status = gBS->LocateProtocol (&gEfiPciRootBridgeIoProtocolGuid, NULL, (VOID **) &PciIo);
+  // assemble address according to https://uefi.org/specs/UEFI/2.10/14_Protocols_PCI_Bus_Support.html#pci-configuration-address
+  const UINT8  UEFI_DEVICE_F = PcdGet8 (PcdUefiDeviceFunction);
+  const UINT8  UEFI_DEVICE_D = PcdGet8 (PcdUefiDeviceDevice);
+  const UINT8  UEFI_DEVICE_B = PcdGet8 (PcdUefiDeviceBus);
+  const UINT64 UEFI_DEVICE_CONF_ADDR = (UEFI_DEVICE_B<<24) + (UEFI_DEVICE_D<<16) + (UEFI_DEVICE_F<<8);
   
+  const UINT8 UEFI_DEVICE_MODE_REG_OFFS = PcdGet8 (PcdUefiDeviceModeRefOffs);
+
+  EFI_STATUS Status = gBS->LocateProtocol (&gEfiPciRootBridgeIoProtocolGuid, NULL, (VOID **) &PciIo);
   if (EFI_ERROR (Status)) {
-      DEBUG ((DEBUG_ERROR, "Could not get PCIIo handle. Falling back to GFX Mode 0.\n"));
+      DEBUG ((DEBUG_ERROR, "Could not get PCIIo handle. Falling back to GFX Mode %d.\n", gfx_mode));
   } else {
       DEBUG ((DEBUG_INFO, "Getting GFX Mode \n"));
-      Status = PciIo->Pci.Read(PciIo, EfiPciIoWidthUint16, 0x742, 1, &gfx_mode);
-      if (EFI_ERROR (Status)) DEBUG ((DEBUG_ERROR, "Could not perform PCI conf read2. Falling back to GFX Mode 0.\n"));
+      Status = PciIo->Pci.Read(PciIo, EfiPciIoWidthUint16, UEFI_DEVICE_CONF_ADDR + UEFI_DEVICE_MODE_REG_OFFS, 1, &gfx_mode);
+      if (EFI_ERROR (Status)) {
+          DEBUG ((DEBUG_ERROR, "Could not perform PCI conf read. Falling back to GFX Mode %d.\n", gfx_mode));
+          gfx_mode = 5;
+      }
       DEBUG ((DEBUG_INFO, "Got GFX Mode %d\n", gfx_mode));
+  }
+  if (gfx_mode == 0xffff) {
+      DEBUG ((DEBUG_INFO, "GFX Mode %d means 'No UEFI device'. Falling back to GFX Mode 5.\n", gfx_mode));
+      gfx_mode = 0x5;
   }
   Status = gBS->LocateProtocol (&gEfiGraphicsOutputProtocolGuid, NULL, (VOID **) &Gop);
   if (EFI_ERROR (Status)) {
-      DEBUG ((DEBUG_ERROR, "Could not get GOP handle\n"));
+      DEBUG ((DEBUG_ERROR, "Could not get GOP handle. Not setting GFX mode.\n"));
   } else {
-      DEBUG ((DEBUG_INFO, "Setting GXF Mode %d\n", gfx_mode));
+      DEBUG ((DEBUG_INFO, "Setting GFX Mode %d\n", gfx_mode));
       Gop->SetMode(Gop, gfx_mode);
   }
 }
